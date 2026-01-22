@@ -10,6 +10,12 @@ if test -f "${SHARED_DIR}/proxy-conf.sh"; then
     source "${SHARED_DIR}/proxy-conf.sh"
 fi
 
+# Build hydrophone locally (avoid SHARED_DIR secret size limit)
+echo "Building hydrophone..."
+export GOFLAGS=""
+GOBIN="/tmp" go install sigs.k8s.io/hydrophone@latest
+export PATH="/tmp:${PATH}"
+
 # Get Kubernetes version from cluster
 K8S_VERSION=$(oc version -ojson | jq -r '.serverVersion.gitVersion | sub("[\\+].*"; "")')
 echo "Detected Kubernetes version: ${K8S_VERSION}"
@@ -29,7 +35,7 @@ oc adm policy add-scc-to-group anyuid system:authenticated system:serviceaccount
 
 # Run conformance tests
 echo "Starting CNCF Kubernetes conformance tests..."
-"${SHARED_DIR}/hydrophone" \
+hydrophone \
   --conformance \
   --conformance-image "registry.k8s.io/conformance:${K8S_VERSION}" \
   --extra-args="--allowed-not-ready-nodes=${UNSCHEDULABLE_NODE_COUNT}" \
