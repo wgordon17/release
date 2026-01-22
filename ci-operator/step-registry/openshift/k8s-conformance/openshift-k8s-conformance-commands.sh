@@ -10,6 +10,11 @@ if test -f "${SHARED_DIR}/proxy-conf.sh"; then
     source "${SHARED_DIR}/proxy-conf.sh"
 fi
 
+# Download hydrophone binary (latest version)
+echo "Downloading hydrophone..."
+curl -sL https://github.com/kubernetes-sigs/hydrophone/releases/latest/download/hydrophone_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+chmod +x /usr/local/bin/hydrophone
+
 # Get Kubernetes version from cluster
 K8S_VERSION=$(oc version -ojson | jq -r '.serverVersion.gitVersion | sub("[\\+].*"; "")')
 echo "Detected Kubernetes version: ${K8S_VERSION}"
@@ -29,7 +34,7 @@ oc adm policy add-scc-to-group anyuid system:authenticated system:serviceaccount
 
 # Run conformance tests
 echo "Starting CNCF Kubernetes conformance tests..."
-"${SHARED_DIR}/hydrophone" \
+hydrophone \
   --conformance \
   --conformance-image "registry.k8s.io/conformance:${K8S_VERSION}" \
   --extra-args="--allowed-not-ready-nodes=${UNSCHEDULABLE_NODE_COUNT}" \

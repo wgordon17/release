@@ -11,5 +11,5 @@ ref:
       memory: 1Gi
   documentation: |-
     Runs the official CNCF Kubernetes conformance test suite using hydrophone.
-    Expects the hydrophone binary to be present in SHARED_DIR (from build step).
+    Downloads hydrophone binary from GitHub releases (latest version).
     Generates results suitable for k8s-conformance repository submissions.
